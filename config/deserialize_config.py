@@ -1,8 +1,9 @@
 # python
 import numbers
-from dataclasses import Field, fields
+from dataclasses import dataclass, fields, field
 from typing import Type, List, Any
 from typing import Dict
+from enum import Enum, IntEnum
 # 3rd party
 from nameof import nameof
 # project
@@ -11,38 +12,79 @@ from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
 from .field_meta      import FieldMeta
 
 
-def deserialize_item(item_type, item, meta_info):
+MetaInfoType = Dict[Type, List[FieldMeta]]
+
+@dataclass
+class _DeserializeOptions:
+    meta_info       : MetaInfoType = field(default_factory=dict)
+    strong_enum_str : bool         = False
+
+
+
+def _deserialize_item(
+    item_type : Type, 
+    item      : Any, 
+    options   : _DeserializeOptions
+):
     if item is None: return None
     
     deserialized_item = None
     
+    # deserialize list part
     if is_list_alias(item_type):
-        deserialized_item = deserialize_list(item_type, item, meta_info)
+        deserialized_item = _deserialize_list(item_type, item, options)
+
+    # deserialize list part that a present tuple
     elif is_tuple_alias(item_type):
-        deserialized_item = deserialize_tuple(item_type, item, meta_info)
+        deserialized_item = _deserialize_tuple(item_type, item, options)
+    
+    # deserialize str
     elif issubclass(item_type, str) and isinstance(item, str):
         deserialized_item = item_type(item)
+
+    # deserialize IntEnum
+    elif issubclass(item_type, IntEnum) and isinstance(item, int):
+        deserialized_item = item_type(item)
+
+    # deserialize Enum
+    elif issubclass(item_type, Enum) and isinstance(item, str):
+        #raise NotImplementedError(f'Not implemented deserialize {nameof(Enum)}.')
+        deserialized_item = _deserialize_enum_str(item_type, item, options)
+
+    # deserialize number
     elif issubclass(item_type, numbers.Number) and isinstance(item, numbers.Number):
         deserialized_item = item_type(item)
+
+    # deserialize bool
     elif issubclass(item_type, bool) and isinstance(item, bool):
         deserialized_item = bool(item)
+
+    # deserialize dict
     else:
-        deserialized_item = deserialize_config(item_type, item, meta_info)
+        deserialized_item = _deserialize_config(item_type, item, options)
     
     return deserialized_item
         
 
-def deserialize_list(list_t, list, meta_info):
+def _deserialize_list(
+    list_t  : Any, 
+    list    : list, 
+    options : _DeserializeOptions
+):
     item_type = get_list_alias_arg(list_t)
     
     deserialized_list = []
     for item in list:
-        deserialized_list.append(deserialize_item(item_type, item, meta_info))
+        deserialized_list.append(_deserialize_item(item_type, item, options))
         
     return deserialized_list
 
 
-def deserialize_tuple(tuple_type, list, meta_info):
+def _deserialize_tuple(
+    tuple_type  : Any, 
+    list        : list, 
+    options     : _DeserializeOptions
+):
     tuple_types = get_tuple_alias_args(tuple_type)
     
     if len(tuple_types) != len(list):
@@ -50,12 +92,31 @@ def deserialize_tuple(tuple_type, list, meta_info):
     
     deserialized_list = []
     for tuple_type, item in zip(tuple_types, list):
-        deserialized_list.append(deserialize_item(tuple_type, item, meta_info))
+        deserialized_list.append(_deserialize_item(tuple_type, item, options))
         
     return tuple(deserialized_list)
 
 
-def validate_fields_meta(meta_list):
+def _deserialize_enum_str(
+    enum_type : Type,
+    item      : str,
+    options   : _DeserializeOptions
+):
+    elements_data = { }
+    for el in enum_type:
+        if not options.strong_enum_str:
+            elements_data[el.name.lower()] = el
+        else:
+            elements_data[el.name] = el
+
+    key_item = item.lower() if not options.strong_enum_str else item
+
+    return elements_data[key_item]
+
+
+def _validate_fields_meta(
+    meta_list : Any
+):
     if not type(meta_list) is dict:
         raise ValueError(
             f'Type of field_meta in dataclass should be \'{nameof(dict)}\', '
@@ -75,7 +136,7 @@ def validate_fields_meta(meta_list):
             )
         
 
-def provide_fields_meta(
+def _provide_fields_meta(
     type      : Type, 
     meta_info : dict
 ) -> Dict[str, FieldMeta]:
@@ -87,28 +148,24 @@ def provide_fields_meta(
         real_meta = meta_info[type]
         
     if not real_meta is None:
-        validate_fields_meta(real_meta)
+        _validate_fields_meta(real_meta)
         
     return real_meta
 
 
-def deserialize_config(t, dict, meta_info = {}):
+def _deserialize_config(
+    t         : Type, 
+    dict_data : dict,
+    options   : _DeserializeOptions
+):
     t_params = {}
     
-    # ToDo
-    print(f'meta info:{meta_info}')
-    print(f'type:{t}')
-    
-    fields_meta = provide_fields_meta(t, meta_info)
-    
-    # ToDo
-    print(f'fields meta:{fields_meta}')
-    print(f'')
+    fields_meta = _provide_fields_meta(t, options.meta_info)
     
     for field in fields(t):
         # default parsing
         parse_field_name = field.name
-        specializer      = lambda dict_val : deserialize_item(field.type, dict_val, meta_info)
+        specializer      = lambda dict_val : _deserialize_item(field.type, dict_val, options)
         
         # validation field meta
         if not fields_meta is None:
@@ -119,7 +176,7 @@ def deserialize_config(t, dict, meta_info = {}):
                     parse_field_name = parse_name
 
                 # validation required
-                if field_meta.required and not parse_field_name in dict:
+                if field_meta.required and not parse_field_name in dict_data:
                     raise ValueError(
                         f'Error during config parsing. Missing field \'{parse_field_name}\' in config '
                         f'that present field \'{field.name}\' in dataclass \'{t}\'.'
@@ -128,13 +185,31 @@ def deserialize_config(t, dict, meta_info = {}):
                 # if available specializer
                 if not field_meta.specializer is None:
                     specializer = lambda dict_val : field_meta.specializer(dict_val)
-                
-        dict_value = dict[parse_field_name] if parse_field_name in dict else None
+
+        dict_value = dict_data[parse_field_name] if parse_field_name in dict_data else None
         
         deserialize_value = None
         if not dict_value is None:
             deserialize_value = specializer(dict_value)
+
+        # set default value if field not available in configuration
+        if deserialize_value is None:
+            print(f'{field.name}:{field.default.name}')
     
         t_params[field.name] = deserialize_value
         
     return t(**t_params)
+
+
+def deserialize_config(
+    t               : Type,
+    dict_data       : dict,
+    meta_info       : MetaInfoType = {},
+    strong_enum_str : bool         = False
+):
+    options = _DeserializeOptions(
+        meta_info, 
+        strong_enum_str
+    )
+
+    return _deserialize_config(t, dict_data, options)
