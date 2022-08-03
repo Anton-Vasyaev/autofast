@@ -1,6 +1,7 @@
 # python
 import numbers
-from dataclasses import dataclass, fields, field
+from dataclasses import MISSING, dataclass, fields, field
+from types import MappingProxyType
 from typing import Type, List, Any
 from typing import Dict
 from enum import Enum, IntEnum
@@ -9,10 +10,10 @@ from nameof import nameof
 # project
 from .deserialize_aux import is_list_alias, is_tuple_alias
 from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
-from .field_meta      import FieldMeta
+from .field_meta_data import FieldMeta, FIELDMETA_KEYNAME
 
 
-MetaInfoType = Dict[Type, List[FieldMeta]]
+MetaInfoType = Dict[Type, Dict[str, FieldMeta]]
 
 @dataclass
 class _DeserializeOptions:
@@ -131,26 +132,41 @@ def _validate_fields_meta(
         
         if not type(field_meta) is FieldMeta:
             raise ValueError(
-                f'Wrong type of fields_meta dict element, '
+                f'Wrong type of fields_meta in field \'{field_name}\', '
                 f'expected \'{nameof(FieldMeta)}\', gotted \'{type(field_meta)}\''
             )
         
 
 def _provide_fields_meta(
-    type      : Type, 
-    meta_info : dict
+    data_type : Type, 
+    meta_info : MetaInfoType
 ) -> Dict[str, FieldMeta]:
-    real_meta = None
-    
-    if 'fields_meta' in type.__dict__:
-        real_meta = type.__dict__['fields_meta']
-    elif type in meta_info:
-        real_meta = meta_info[type]
+    type_meta = {}
+
+    # write local fields params
+    for field in fields(data_type):
+        if isinstance(field.metadata, MappingProxyType):
+            if FIELDMETA_KEYNAME in field.metadata:
+                type_meta[field.name] = field.metadata['fastdi_meta']
+
+    # rewrite meta from static field FIELDS_META
+    if hasattr(data_type, "FIELDS_META"):
+        type_fields_meta = data_type.FIELDS_META
+
+        for field_name, field_meta in type_fields_meta.items():
+            type_meta[field_name] = field_meta
+
+    # rewrite global params
+    if data_type in meta_info:
+        type_fields_meta = meta_info[data_type]
+
+        for field_name, field_meta in type_fields_meta.items():
+            type_meta[field_name] = field_meta
+
+
+    _validate_fields_meta(type_meta)
         
-    if not real_meta is None:
-        _validate_fields_meta(real_meta)
-        
-    return real_meta
+    return type_meta
 
 
 def _deserialize_config(
@@ -165,7 +181,7 @@ def _deserialize_config(
     for field in fields(t):
         # default parsing
         parse_field_name = field.name
-        specializer      = lambda dict_val : _deserialize_item(field.type, dict_val, options)
+        decoder      = lambda dict_val : _deserialize_item(field.type, dict_val, options)
         
         # validation field meta
         if not fields_meta is None:
@@ -182,19 +198,23 @@ def _deserialize_config(
                         f'that present field \'{field.name}\' in dataclass \'{t}\'.'
                     )
                     
-                # if available specializer
-                if not field_meta.specializer is None:
-                    specializer = lambda dict_val : field_meta.specializer(dict_val)
+                # if available decoder
+                if not field_meta.decoder is None:
+                    decoder = lambda dict_val : field_meta.decoder(dict_val)
 
         dict_value = dict_data[parse_field_name] if parse_field_name in dict_data else None
         
         deserialize_value = None
         if not dict_value is None:
-            deserialize_value = specializer(dict_value)
+            deserialize_value = decoder(dict_value)
 
         # set default value if field not available in configuration
         if deserialize_value is None:
-            print(f'{field.name}:{field.default.name}')
+            if not field.default is MISSING:
+                deserialize_value = field.default
+            elif not field.default_factory is MISSING:
+                deserialize_value = field.default_factory()
+
     
         t_params[field.name] = deserialize_value
         
