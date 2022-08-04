@@ -7,11 +7,39 @@ from fastdi.config import field_meta
 
 @dataclass
 class BasicColorDistribution:
-    red   : Tuple[float, float]
-    green : Tuple[float, float]
-    blue  : Tuple[float, float]
+    red   : Tuple[float, float] = field_meta(required=True)
+    green : Tuple[float, float] = field_meta(required=True)
+    blue  : Tuple[float, float] = field_meta(required=True)
 
 
 @dataclass
-class Rotate2Distribution:
-    angles : Tuple[float, float]
+class ColorNoiseDistribution:
+    red   : Tuple[float, float] = field_meta(required=True)
+    green : Tuple[float, float] = field_meta(required=True)
+    blue  : Tuple[float, float] = field_meta(required=True)
+
+
+@dataclass
+class IntensityNoiseDistribution:
+    intensity : Tuple[float, float] = field_meta(required=True)
+
+
+@dataclass
+class Rotate3Distribution:
+    angles : Tuple[float, float, float] = field_meta(required=True)
+
+
+@dataclass
+class MirrorDistribution:
+    horizontal : float = field_meta(required=True)
+    vertical   : float = field_meta(required=True)
+
+
+@dataclass
+class AugmentationDistribution:
+    basic_color     : BasicColorDistribution
+    color_noise     : ColorNoiseDistribution
+    intensity_noise : IntensityNoiseDistribution
+
+    rotate_3d : Rotate3Distribution
+    mirror    : MirrorDistribution

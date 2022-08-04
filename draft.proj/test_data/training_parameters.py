@@ -10,9 +10,9 @@ from .image_type import ImageType
 
 
 @dataclass
-class TrainingSettings:
+class TrainingParameters:
     input_size    : Tuple[int, int] = field_meta(required=True)
-    image_type    : ImageType       = field_meta(required=True, default=ImageType.RGB)
+    image_type    : ImageType       = field_meta(required=True)
     batch_size    : int             = field_meta(required=True)
     epochs        : int             = field_meta(required=True)
     learning_rate : float           = field_meta(required=True, default=1e-3)
