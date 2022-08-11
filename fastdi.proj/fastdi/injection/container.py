@@ -1,5 +1,6 @@
 # python
-from typing import Any, Callable, List, Type
+import inspect
+from typing import Any, Callable, Generic, List, Type
 from dataclasses import dataclass
 from enum import Enum, auto
 # 3rd party
@@ -15,11 +16,10 @@ class ContainerOptions:
     strong_abstract : bool = True
     
 
-class ResolveType:
+class ResolveType(Enum):
     Instance  = auto()
     Singleton = auto()
-    
-    
+
 
 class Container:
     def __init__(
@@ -61,10 +61,11 @@ class Container:
         
         validate_constructor(register_type)
         
+        
         self.registrations[provide_type] = _RegistrationPart(
             provide_type,
             register_type,
-            None,
+            _TypeResolver(register_type),
             None,
             resolve_type
         )
@@ -93,9 +94,20 @@ class Container:
 
         
         
-    def resolve_type(self, data_type : Type):
-        pass
+    def resolve(self, data_type : Type) -> Any:
+        if not data_type in self.registrations:
+            raise ValueError(f'\'{data_type}\' is not registered.')
         
+        reg_part = self.registrations[data_type]
+        
+        if reg_part.resolve_type == ResolveType.Singleton:
+            if reg_part.instance is None:
+                reg_part.instance = reg_part.factory(self)
+                
+            return reg_part.instance
+        
+        else:
+            return reg_part.factory(self)
     
 
         
@@ -106,3 +118,27 @@ class _RegistrationPart:
     factory       : Callable[[Container], Any]
     instance      : Any
     resolve_type  : ResolveType
+
+
+
+class _TypeResolver:
+    def __init__(self, data_type : Type):
+        self.data_type = data_type
+        
+        
+    def __call__(self, container : Container) -> Type:
+        init_func = getattr(self.data_type, '__init__')
+        args_spec = inspect.getfullargspec(init_func)
+        
+        init_args = []
+        
+        for arg_name in args_spec.args[1:]:
+            type = args_spec.annotations[arg_name]
+            
+            init_args.append((arg_name, type))
+            
+        build_args = { }
+        for arg_name, arg_type in init_args:
+            build_args[arg_name] = container.resolve(arg_type)
+            
+        return self.data_type(**build_args)

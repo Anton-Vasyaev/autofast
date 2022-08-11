@@ -3,6 +3,7 @@ import dependencies
 import inspect
 from abc import ABC, abstractmethod
 from typing import Any, Dict, Tuple, Type
+
 # 3rd party
 from nameof import nameof
 # project
@@ -81,10 +82,6 @@ class Point:
 
     
 if __name__ == '__main__':
-    vsp = ValueStringProvider(153, 1)
-
-    val = vsp.provide_str()
-
-    validate_registration(IStringProvider, ValueStringProvider)
+    init_func = getattr(Point, '__init__')
     
-    validate_constructor(ValueStringProvider)
+    print(inspect.getfullargspec(init_func))
