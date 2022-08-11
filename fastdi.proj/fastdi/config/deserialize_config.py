@@ -2,7 +2,7 @@
 import numbers
 from dataclasses import MISSING, dataclass, fields, field
 from types import MappingProxyType
-from typing import Type, List, Any
+from typing import Type, List, Any, TypeVar
 from typing import Dict
 from enum import Enum, IntEnum
 # 3rd party
@@ -12,6 +12,8 @@ from .deserialize_aux import is_list_alias, is_tuple_alias
 from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
 from .field_meta_data import FieldMeta, FIELDMETA_KEYNAME
 
+
+__GenType = TypeVar('__GenType')
 
 MetaInfoType = Dict[Type, Dict[str, FieldMeta]]
 
@@ -170,15 +172,15 @@ def _provide_fields_meta(
 
 
 def _deserialize_config(
-    t         : Type, 
+    data_type : __GenType, 
     dict_data : dict,
     options   : _DeserializeOptions
-):
+) -> __GenType:
     t_params = {}
     
-    fields_meta = _provide_fields_meta(t, options.meta_info)
+    fields_meta = _provide_fields_meta(data_type, options.meta_info)
     
-    for field in fields(t):
+    for field in fields(data_type):
         # default parsing
         parse_field_name = field.name
         decoder      = lambda dict_val : _deserialize_item(field.type, dict_val, options)
@@ -195,7 +197,7 @@ def _deserialize_config(
                 if field_meta.required and not parse_field_name in dict_data:
                     raise ValueError(
                         f'Error during config parsing. Missing field \'{parse_field_name}\' in config '
-                        f'that present field \'{field.name}\' in dataclass \'{t}\'.'
+                        f'that present field \'{field.name}\' in dataclass \'{data_type}\'.'
                     )
                     
                 # if available decoder
@@ -218,18 +220,18 @@ def _deserialize_config(
     
         t_params[field.name] = deserialize_value
         
-    return t(**t_params)
+    return data_type(**t_params)
 
 
 def deserialize_config(
-    t               : Type,
+    data_type       : __GenType,
     dict_data       : dict,
     meta_info       : MetaInfoType = {},
     strong_enum_str : bool         = False
-):
+) -> __GenType:
     options = _DeserializeOptions(
         meta_info, 
         strong_enum_str
     )
 
-    return _deserialize_config(t, dict_data, options)
+    return _deserialize_config(data_type, dict_data, options)
