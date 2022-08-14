@@ -1,0 +1,26 @@
+{
+    "city" : {
+        "name" : "Cherepovets",
+
+        "population" : 345612
+    },
+
+    "mayor": {
+        "name" : "Vasiliy Petrov",
+
+        "age" : 48,
+
+        "skills" : 0.83
+    },
+
+    "format" : {
+        "language_type" : "russian",
+        "word_type" : "upper"
+    },
+
+    "printer" : {
+        "name" : "console",
+
+        "id" : 14
+    }
+}

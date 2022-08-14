@@ -1,3 +1,4 @@
+from __future__ import annotations
 # python
 import inspect
 from typing import Any, Callable, TypeVar, List, Type
@@ -5,10 +6,12 @@ from dataclasses import dataclass
 from enum import Enum, auto
 # 3rd party
 from nameof import nameof
+from ..config.data.configuration_options import ConfigurationOptions
 # project
 import fastdi.verify as fdi_ver
 
 from .validation import validate_constructor, validate_registration
+from ..config    import deserialize_config
 
 
 
@@ -37,12 +40,13 @@ class Container:
         
         self.container_options = container_options
         
-        self.config : dict = None
+        self.config         : dict                 = None
+        self.config_options : ConfigurationOptions = None
         
         self.registrations : List[_RegistrationPart] = {}
         
     
-    def validate_registration(self, provide_type : Type, register_type : Type):
+    def __validate_registration(self, provide_type : Type, register_type : Type):
         validate_registration(
             provide_type,
             register_type,
@@ -50,9 +54,34 @@ class Container:
         )
         
 
-    def load_config(self, config : dict) -> None:
-        self.config = config
-    
+    def load_config(
+        self, 
+        config  : dict,
+        options : ConfigurationOptions = ConfigurationOptions()
+    ):
+        self.config         = config
+        self.config_options = options
+        
+        
+    def register_config(
+        self, 
+        config_type  : Type, 
+        config_field : str
+    ):
+        if self.config is None:
+            raise ValueError(f'Configuration is not loaded.')
+            
+        if not config_field in self.config:
+            raise ValueError(f'{config_field} not present in configuration')
+        
+        self.registrations[config_type] = _RegistrationPart(
+            config_type,
+            config_type,
+            _ConfigResolver(config_type, config_field),
+            None,
+            ResolveType.Singleton
+        )
+        
 
     def register_type(
         self, 
@@ -60,10 +89,9 @@ class Container:
         register_type : Type,
         resolve_type  : ResolveType
     ):
-        validate_registration(
+        self.__validate_registration(
             provide_type, 
-            register_type, 
-            self.container_options.strong_abstract
+            register_type
         )
         
         validate_constructor(register_type)
@@ -82,13 +110,12 @@ class Container:
         self,
         provide_type  : Type,
         register_type : Type,
-        factory       : Callable[[Any], Any],
+        factory       : Callable[[Container], Any],
         resolve_type  : ResolveType
     ):
-        validate_registration(
+        self.__validate_registration(
             provide_type,
-            register_type,
-            self.container_options.strong_abstract
+            register_type
         )
         
         self.registrations[provide_type] = _RegistrationPart(
@@ -149,3 +176,26 @@ class _TypeResolver:
             build_args[arg_name] = container.resolve(arg_type)
             
         return self.data_type(**build_args)
+    
+    
+
+class _ConfigResolver:
+    def __init__(
+        self, 
+        config_type    : Type,
+        config_field   : str
+    ):
+        self.config_type    = config_type
+        self.config_field   = config_field
+        
+    
+    def __call__(self, container : Container) -> Type:
+        if container.config is None:
+            raise ValueError(f'Configuration in container is not loaded.')
+            
+        if not self.config_field in container.config:
+            raise ValueError(f'{self.config_field} not present in configuration')
+        
+        config = deserialize_config(self.config_type, container.config[self.config_field], container.config_options)
+        
+        return config

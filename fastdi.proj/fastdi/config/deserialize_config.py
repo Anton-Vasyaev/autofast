@@ -12,27 +12,21 @@ from .error.config_parse_error import ConfigParseError
 # project
 from .deserialize_aux import is_list_alias, is_tuple_alias, is_true_number_type
 from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
-from .field_meta_data import FieldMeta, FIELDMETA_KEYNAME
+from .data.field_meta_data import FieldMeta, FIELDMETA_KEYNAME
 from .parse_graph     import Node, DictNode, ListNode, ValueNode
 from .error           import FieldParseError
+
+from .data import ConfigurationOptions, MetaInfoType
 
 
 __GenType = TypeVar('__GenType')
 
-MetaInfoType = Dict[Type, Dict[str, FieldMeta]]
-
-
-@dataclass
-class __DeserializeOptions:
-    meta_info              : MetaInfoType = field(default_factory=dict)
-    strong_enum_str        : bool         = False
-    strong_number_matching : bool         = False 
 
 
 def __deserialize_item(
     item_type : Type, 
     node      : Node, 
-    options   : __DeserializeOptions
+    options   : ConfigurationOptions
 ):
     if isinstance(node, ValueNode):
         val_node : ValueNode = node
@@ -90,7 +84,7 @@ def _validate_list_node(node : Node):
 def __deserialize_list(
     list_t  : Any, 
     node    : Node, 
-    options : __DeserializeOptions
+    options : ConfigurationOptions
 ):
     _validate_list_node(node)
 
@@ -108,7 +102,7 @@ def __deserialize_list(
 def __deserialize_tuple(
     tuple_type  : Any, 
     node        : Node, 
-    options     : __DeserializeOptions
+    options     : ConfigurationOptions
 ):
     _validate_list_node(node)
     
@@ -155,7 +149,7 @@ def __deserialize_str(
 def __deserialize_enum(
     enum_type : Type,
     node      : Node,
-    options   : __DeserializeOptions
+    options   : ConfigurationOptions
 ):
     __validate_value_node(node)
     
@@ -204,7 +198,7 @@ def __deserialize_enum(
 def __deserialize_number(
     number_type : Type,
     node        : Node,
-    options     : __DeserializeOptions
+    options     : ConfigurationOptions
 ):
     __validate_value_node(node)
     
@@ -292,7 +286,7 @@ def __provide_fields_meta(
 def __deserialize_dict(
     data_type : __GenType, 
     dict_node : DictNode,
-    options   : __DeserializeOptions
+    options   : ConfigurationOptions
 ) -> __GenType:
     t_params = {}
     
@@ -344,15 +338,8 @@ def __deserialize_dict(
 def deserialize_config(
     data_type              : __GenType,
     dict_data              : dict,
-    meta_info              : MetaInfoType = {},
-    strong_enum_str        : bool         = False,
-    strong_number_matching : bool         = False
+    options                : ConfigurationOptions = ConfigurationOptions()
 ) -> __GenType:
-    options = __DeserializeOptions(
-        meta_info, 
-        strong_enum_str,
-        strong_number_matching
-    )
 
     node = DictNode(dict_data, None, None)
 

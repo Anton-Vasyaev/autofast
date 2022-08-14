@@ -76,8 +76,9 @@ def get_func_info_str_present(func_info : FunctionInfo) -> str:
         if arg in annotation:
             arg_anno = annotation[arg]
             string_list.append(f' : {arg_anno}')
-            if arg_idx != len(args) - 1:
-                string_list.append(', ')
+            
+        if arg_idx != len(args) - 1:
+            string_list.append(', ')
     
     string_list.append(')')
     
