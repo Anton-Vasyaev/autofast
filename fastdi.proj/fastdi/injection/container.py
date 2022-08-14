@@ -1,6 +1,6 @@
 # python
 import inspect
-from typing import Any, Callable, Generic, List, Type
+from typing import Any, Callable, TypeVar, List, Type
 from dataclasses import dataclass
 from enum import Enum, auto
 # 3rd party
@@ -11,14 +11,21 @@ import fastdi.verify as fdi_ver
 from .validation import validate_constructor, validate_registration
 
 
+
+_GenType = TypeVar('__GenType')
+
+
+
 @dataclass
 class ContainerOptions:
     strong_abstract : bool = True
     
 
+
 class ResolveType(Enum):
     Instance  = auto()
     Singleton = auto()
+
 
 
 class Container:
@@ -94,7 +101,7 @@ class Container:
 
         
         
-    def resolve(self, data_type : Type) -> Any:
+    def resolve(self, data_type : _GenType) -> _GenType:
         if not data_type in self.registrations:
             raise ValueError(f'\'{data_type}\' is not registered.')
         

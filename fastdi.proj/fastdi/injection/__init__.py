@@ -1,1 +1,1 @@
-from .container import Container, ResolveType
+from .container import Container, ContainerOptions, ResolveType

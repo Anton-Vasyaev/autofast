@@ -126,7 +126,7 @@ def validate_same_functions(
             raise ValueError(
                 f'Abstract function \'{provide_func_name}\' from ' 
                 f'abstract class \'{provide_type}\' '
-                f'not implementation in \'{register_type}\'.'
+                f'not implemented in \'{register_type}\'.'
             )
 
         register_func_info = register_functions[provide_func_name]
@@ -149,7 +149,7 @@ def validate_registration(provide_type, register_type, strong_abstract = False):
             f'because {register_type} is not inherited from {provide_type}.'
         )
     
-    if not inspect.isabstract(provide_type) and not strong_abstract:
+    if not inspect.isabstract(provide_type) and strong_abstract:
         return
     
     if not inspect.isabstract(provide_type):

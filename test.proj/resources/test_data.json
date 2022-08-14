@@ -1,0 +1,58 @@
+{
+    "train_params" : {
+        "input_size" : [1024, 512],
+
+        "image_type" : "bgra",
+
+        "batch_size" : 8,
+
+        "epochs" : 1000,
+
+        "learning_rate" : 0.001,
+        
+        "use_gpu" : true
+    },
+
+    "env_settings" : {
+        "checkpoint_path" : "path/to/checkpoint/dir",
+
+        "export_path" : "path/to/export/dir",
+
+        "models" : [
+            ["EfficientNet",         23, true],
+
+            ["BobaBibaNet-12",       53, false],
+
+            ["SpipuchkinModel-256", 241, true]
+        ]
+    },
+
+    "aug_params" : {
+        "aug_dist" : {
+            "basic_color" : {
+                "red" : [0.6, 1.6],
+
+                "green" : [0.73, 1.234],
+
+                "blue" : [0.81, 1.1113]
+            },
+
+            "rotate_3d" : {
+                "angles" : [0.321, -0.56, 2.0]
+            },
+
+            "mirror" : {
+                "horizontal" : 0.85,
+                
+                "vertical" : 0.13
+            },
+
+            "stretch" : {
+                "orientation" : "vertical",
+                "image" : "dst"
+            }
+        },
+
+        "aug_size" : 3.65
+    }
+}
