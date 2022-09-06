@@ -34,7 +34,7 @@ def field_meta(
     hash                              = None, 
     compare                           = True, 
     metadata                          = None
-) -> Field:
+):
     meta_dict = FieldMeta.to_dict(required, parse_name, decoder)
 
     if not metadata is None:

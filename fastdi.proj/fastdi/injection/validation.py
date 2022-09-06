@@ -34,7 +34,6 @@ def get_functions_info(data_type : Type) -> Dict[str, FunctionInfo]:
         short_name    = get_function_short_name(function)
         args          = inspect.getfullargspec(function)
         abstract_flag = is_abstract_function(function)
-
         abstract_functions[short_name] = FunctionInfo(short_name, function, args, abstract_flag)
 
     return abstract_functions
@@ -66,9 +65,6 @@ def get_func_info_str_present(func_info : FunctionInfo) -> str:
     
     args       = func_info.args_info.args
     annotation = func_info.args_info.annotations
-    
-    # ToDo
-    print(f'args:{args}')
     
     for arg_idx in range(len(args)):
         arg = args[arg_idx]
@@ -150,7 +146,7 @@ def validate_registration(provide_type, register_type, strong_abstract = False):
             f'because {register_type} is not inherited from {provide_type}.'
         )
     
-    if not inspect.isabstract(provide_type) and strong_abstract:
+    if not strong_abstract:
         return
     
     if not inspect.isabstract(provide_type):

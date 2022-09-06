@@ -72,7 +72,7 @@ class Container:
             raise ValueError(f'Configuration is not loaded.')
             
         if not config_field in self.config:
-            raise ValueError(f'{config_field} not present in configuration')
+            raise ValueError(f'Field \'{config_field}\' not present in configuration')
         
         self.registrations[config_type] = _RegistrationPart(
             config_type,
