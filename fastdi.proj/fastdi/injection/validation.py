@@ -148,7 +148,7 @@ def validate_registration(provide_type, register_type, strong_abstract = False):
     
     if not strong_abstract:
         return
-    
+
     if not inspect.isabstract(provide_type):
         raise ValueError(
             f'Invalid registration \'{register_type}\' as \'{provide_type}\', '

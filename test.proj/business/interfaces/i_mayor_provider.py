@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from ..data import MayorData
 
 
-class IMayorProvider:
+class IMayorProvider(ABC):
     @abstractmethod
-    def provide_major(self) -> MayorData:
+    def provide_mayor(self) -> MayorData:
         raise NotImplementedError()

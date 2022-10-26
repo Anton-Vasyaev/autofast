@@ -42,8 +42,7 @@ def test_basic_di():
     container.register_type(IMessageLoader,    BarMessageLoader,      ResolveType.Singleton)
     container.register_type(IMessageFormatter, FooMessageFormatter,   ResolveType.Singleton)
     container.register_type(IDataProcessor,    StandardDataProcessor, ResolveType.Singleton)
-    
-    
+     
     processor = container.resolve(IDataProcessor)
     
     processor.process()

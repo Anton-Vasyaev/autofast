@@ -15,7 +15,7 @@ from ..config    import deserialize_config
 
 
 
-_GenType = TypeVar('__GenType')
+GenType = TypeVar('GenType')
 
 
 
@@ -32,6 +32,15 @@ class ResolveType(Enum):
 
 
 class Container:
+    container_options : ContainerOptions
+    
+    config : dict
+
+    config_options : ConfigurationOptions
+
+    registrations : List[_RegistrationPart]
+
+
     def __init__(
         self, 
         container_options : ContainerOptions = ContainerOptions()
@@ -128,7 +137,7 @@ class Container:
 
         
         
-    def resolve(self, data_type : _GenType) -> _GenType:
+    def resolve(self, data_type : Type[GenType]) -> GenType:
         if not data_type in self.registrations:
             raise ValueError(f'\'{data_type}\' is not registered.')
         
