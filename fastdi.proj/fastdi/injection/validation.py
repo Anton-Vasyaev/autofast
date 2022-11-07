@@ -5,7 +5,7 @@ from typing      import Any, Dict
 # 3rd party
 from nameof import nameof
 # project
-from .reflection import *
+from fastdi.reflection.function import *
 
 
 
