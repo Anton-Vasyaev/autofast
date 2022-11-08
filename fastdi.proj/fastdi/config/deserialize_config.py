@@ -174,7 +174,7 @@ def __deserialize_enum(
 
         key_item = val.lower() if not options.strong_enum_str else val
         
-        if not val in elements_data:
+        if not key_item in elements_data:
             raise FieldParseError(
                 node,
                 f'string \'{val}\' not present in enum \'{enum_type}\''

@@ -195,7 +195,7 @@ class _ConfigResolver:
             
         if not self.config_field in container.config:
             raise ValueError(f'{self.config_field} not present in configuration')
-        
+
         config = deserialize_config(self.config_type, container.config[self.config_field], container.config_options)
         
         return config
