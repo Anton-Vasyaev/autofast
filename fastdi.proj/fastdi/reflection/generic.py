@@ -17,6 +17,9 @@ def is_generic_class(t : Type) -> bool:
         _description_
     '''
 
+    if not hasattr(t, '__dict__'):
+        return False
+
     if '__origin__' in t.__dict__:
         return True
 

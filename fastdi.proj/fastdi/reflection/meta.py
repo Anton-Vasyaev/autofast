@@ -45,6 +45,7 @@ def get_functions_meta_info(t : Type) -> List[FunctionMetaInfo]:
         # ToDo add static method inspect
         meta_info_list.append(
             FunctionMetaInfo(
+                func,
                 short_name, 
                 return_annotation, 
                 abstract_flag, 

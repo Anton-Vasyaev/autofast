@@ -9,6 +9,9 @@ from .argument_meta_info import ArgumentMetaInfo
 class FunctionMetaInfo:
     ''' Contains meta-information of function. '''
 
+    origin_handler : Any
+    ''' Origin handler of function. '''
+
     name : str
     ''' Name identificator of function. '''
 
@@ -23,6 +26,22 @@ class FunctionMetaInfo:
 
     arguments : List[ArgumentMetaInfo]
     ''' Collection of meta-information of arguments. '''
+
+
+    def __eq__(self, other) -> bool:
+        other_t = cast(FunctionMetaInfo, other)
+
+        return self.origin_handler == other_t.origin_handler
+
+
+    def __hash__(self) -> int:
+        '''
+        Returns hash.
+
+        Returns:
+            int: hash (hash of original function handler.)
+        '''
+        return hash(self.origin_handler)
 
 
     def __str__(self):
