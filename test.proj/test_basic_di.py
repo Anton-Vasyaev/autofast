@@ -9,6 +9,7 @@ from business.interfaces    import *
 from business.realisation   import *
 from business.configuration import *
 
+
 def test_basic_di():
     str_data = ['']
     

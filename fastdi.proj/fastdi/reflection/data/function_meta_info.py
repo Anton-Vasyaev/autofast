@@ -18,10 +18,10 @@ class FunctionMetaInfo:
     return_annotation : Any
     '''Annotation of return type. '''
 
-    is_abstract : bool
+    abstract : bool
     ''' Flag indicating that function is abstract. '''
     
-    is_static : bool
+    static : bool
     ''' Flag indicating that function is static. '''
 
     arguments : List[ArgumentMetaInfo]
@@ -55,7 +55,7 @@ class FunctionMetaInfo:
             str: Default str-present of meta-infromation of function.
         '''
         string_list = []
-        if(self.is_abstract):
+        if(self.abstract):
             string_list.append('abstract ')
 
         string_list.append(f'{self.name}(')
@@ -95,4 +95,4 @@ class FunctionMetaInfo:
             if self_arg.annotation != other_arg.annotation:
                 return False
 
-        
+        return True

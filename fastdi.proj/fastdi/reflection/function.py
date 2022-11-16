@@ -60,6 +60,8 @@ def is_abstract_function(function_type : Any) -> bool:
     if hasattr(function_type, '__isabstractmethod__'):
         return True
 
+    return False
+
 
 def get_function_short_name(function) -> str:
     '''

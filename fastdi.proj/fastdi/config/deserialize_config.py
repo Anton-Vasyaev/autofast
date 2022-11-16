@@ -2,7 +2,7 @@
 from numbers        import Number
 from dataclasses    import MISSING, dataclass, fields, field
 from types          import MappingProxyType
-from typing         import Type, List, Any, TypeVar
+from typing         import Optional, Type, List, Any, TypeVar, cast
 from typing         import Dict
 from enum           import Enum
 # 3rd party
@@ -88,7 +88,7 @@ def __deserialize_list(
 ):
     _validate_list_node(node)
 
-    list_node : ListNode = node
+    list_node = cast(ListNode, node)
     
     item_type = get_list_alias_arg(list_t)
     
@@ -106,7 +106,7 @@ def __deserialize_tuple(
 ):
     _validate_list_node(node)
     
-    list_node : ListNode = node
+    list_node = cast(ListNode, node)
     
     tuple_types = get_tuple_alias_args(tuple_type)
     
@@ -153,7 +153,7 @@ def __deserialize_enum(
 ):
     __validate_value_node(node)
     
-    val_node : ValueNode = node
+    val_node = cast(ValueNode, node)
 
     val = val_node.value
     
@@ -202,7 +202,7 @@ def __deserialize_number(
 ):
     __validate_value_node(node)
     
-    val_node: ValueNode = node
+    val_node = cast(ValueNode, node)
     
     val      = val_node.value
     val_type = type(val)
@@ -228,8 +228,8 @@ def __deserialize_bool(
 ):
     __validate_value_node(node)
     
-    val_node : ValueNode = node
-    val                  = val_node.value
+    val_node = cast(ValueNode, node)
+    val      = val_node.value
     
     if not isinstance(val, bool):
         raise FieldParseError(
@@ -284,7 +284,7 @@ def __provide_fields_meta(
 
 
 def __deserialize_dict(
-    data_type : __GenType, 
+    data_type : Type[__GenType], 
     dict_node : DictNode,
     options   : ConfigurationOptions
 ) -> __GenType:
@@ -336,11 +336,14 @@ def __deserialize_dict(
 
 
 def deserialize_config(
-    data_type              : __GenType,
+    data_type              : Type[__GenType],
     dict_data              : dict,
-    options                : ConfigurationOptions = ConfigurationOptions()
+    options                : Optional[ConfigurationOptions] = None
 ) -> __GenType:
 
-    node = DictNode(dict_data, None, None)
+    if options is None:
+        options = ConfigurationOptions()
+
+    node = DictNode(dict_data, None, '<root>')
 
     return __deserialize_dict(data_type, node, options)

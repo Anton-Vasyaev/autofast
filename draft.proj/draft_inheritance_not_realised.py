@@ -1,25 +1,21 @@
 from abc import abstractmethod
 
 class A:
-    @abstractmethod
     def print_data(self):
-        raise NotImplementedError()
+        print('data')
 
 
-
-class B(A):
-    pass
-
-
-class C(A):
-    def print_data(self):
-        print('[C] print_data')
+class B:
+    def print_data(self, data : int):
+        print(f'data:{data}')
 
 
-class D(B, C):
-    pass
+class C(B, A):
+    def print_data(self, a : int, b : int):
+        print(f'data:{a}, {b}')
 
 
 if __name__ == '__main__':
-    ob = D()
+    ob : A = C()
+
     ob.print_data()
