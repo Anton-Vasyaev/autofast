@@ -17,6 +17,9 @@ def validate_registration_strong_inheritance(provide_type : Type, register_type 
         register_type (Type): Type to be registered.
     '''
 
+    if provide_type == register_type:
+        return
+
     validate_ancestor_and_descendant(provide_type, register_type)
 
     register_meta = get_class_meta_info(register_type)
@@ -34,6 +37,9 @@ def validate_registration(provide_type : Type, register_type : Type):
         provide_type (Type): Type to be resolved.
         register_type (Type): Type to be registered.
     '''
+
+    if provide_type == register_type:
+        return
 
     validate_ancestor_and_descendant(provide_type, register_type)
 

@@ -11,8 +11,6 @@ def validate_constructor(cls_meta: ClassMetaInfo):
         if func.name == '__init__':
             has_constructor = True
 
-            # ToDo
-            print(func.arguments)
             if len(func.arguments) < 1:
                 raise ValueError(
                     f'Error. Data type \'{cls_meta.type}\' has constructor function \'__init__\' with empty arguments.'
@@ -27,6 +25,3 @@ def validate_constructor(cls_meta: ClassMetaInfo):
                         f'Error. argument \'{arg.name}\' has not annotation in constructor function \'__init__\' '
                         f'of type \'{cls_meta.type}\'.'
                     )
-
-    if not has_constructor:
-        raise ValueError(f'\'{cls_meta.type}\' has not constructor function \'__init__\'')

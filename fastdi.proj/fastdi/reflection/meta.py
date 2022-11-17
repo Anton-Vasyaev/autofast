@@ -99,7 +99,7 @@ def get_functions_meta_info_generic_instance(t : Type) -> List[FunctionMetaInfo]
                     arg_anno = parameter_instances_dict[arg_anno]
                 if is_generic_class(arg_anno):
                     arg_anno = get_nested_generic_instance(
-                        return_anno,
+                        arg_anno,
                         parameter_instances_dict
                     )
             arg.annotation = arg_anno

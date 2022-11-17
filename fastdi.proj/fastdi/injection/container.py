@@ -19,7 +19,7 @@ T = TypeVar('T')
 
 @dataclass
 class ContainerOptions:
-    ''' Options for Container dependency injection resolving. '''
+    ''' Options for container dependency injection resolving. '''
 
     strong_inheritance : bool = True
     '''
@@ -66,36 +66,40 @@ class _RegistrationPart:
 
 
 class _TypeResolver:
-    data_type : Type
+    __data_type : Type
 
 
     def __init__(self, data_type : Type):
-        self.data_type = data_type
+        self.__data_type = data_type
         
         
     def __call__(self, container : Container) -> Type:
-        init_func = getattr(self.data_type, '__init__')
-        args_spec = inspect.getfullargspec(init_func)
-        
+        cls_meta = get_class_meta_info(self.__data_type)
+
         init_args = []
-        
-        for arg_name in args_spec.args[1:]:
-            type = args_spec.annotations[arg_name]
-            
-            init_args.append((arg_name, type))
-            
-        build_args = { }
-        for arg_name, arg_type in init_args:
-            build_args[arg_name] = container.resolve(arg_type)
-            
-        return self.data_type(**build_args)
-    
+
+        for func in cls_meta.functions:
+            if func.name == '__init__':
+                for arg in func.arguments[1:]:
+                    arg_name = arg.name
+                    arg_anno = arg.annotation
+
+                    init_args.append((arg_name, arg_anno))
+
+        if len(init_args) == 0:
+            return self.__data_type()
+        else:
+            build_args = {}
+            for arg_name, arg_anno in init_args:
+                build_args[arg_name] = container.resolve(arg_anno)
+
+            return self.__data_type(**build_args)
     
 
 class _ConfigResolver:
-    config_type : Type
+    __config_type : Type
 
-    config_field : str
+    __config_field : str
 
 
     def __init__(
@@ -103,18 +107,18 @@ class _ConfigResolver:
         config_type    : Type,
         config_field   : str
     ):
-        self.config_type    = config_type
-        self.config_field   = config_field
+        self.__config_type    = config_type
+        self.__config_field   = config_field
         
     
     def __call__(self, container : Container) -> Type:
         if container.config is None:
             raise ValueError(f'Configuration in container is not loaded.')
             
-        if not self.config_field in container.config:
-            raise ValueError(f'{self.config_field} not present in configuration')
+        if not self.__config_field in container.config:
+            raise ValueError(f'{self.__config_field} not present in configuration')
 
-        config = deserialize_config(self.config_type, container.config[self.config_field], container.config_options)
+        config = deserialize_config(self.__config_type, container.config[self.__config_field], container.config_options)
         
         return config
 
@@ -124,15 +128,15 @@ class Container:
 
 #region data
 
-    container_options : ContainerOptions
+    __container_options : ContainerOptions
     
     config : Optional[dict]
 
     config_options : Optional[ConfigurationOptions]
 
-    registrations : Dict[Type, _RegistrationPart]
+    __registrations : Dict[Type, _RegistrationPart]
 
-    registrations_by_name : Dict[str, _RegistrationPart]
+    __registrations_by_name : Dict[str, _RegistrationPart]
 
 #endregion
 
@@ -141,7 +145,7 @@ class Container:
 
     def __validate_registration(self, provide_type : Type, register_type : Type):
         
-        if self.container_options.strong_inheritance:
+        if self.__container_options.strong_inheritance:
             validate_registration_strong_inheritance(provide_type, register_type)
         else:
             validate_registration(provide_type, register_type)
@@ -182,13 +186,15 @@ class Container:
         '''
         fdi_ver.is_none(container_options, nameof(container_options))
         
-        self.container_options = container_options
+        self.__container_options = container_options
         
         self.config         = None
         self.config_options = None
+
+        print(f'self config:{self.config}')
         
-        self.registrations         = dict()
-        self.registrations_by_name = dict()
+        self.__registrations         = dict()
+        self.__registrations_by_name = dict()
         
 #endregion
 
@@ -232,10 +238,10 @@ class Container:
 
         self.__validate_config(config_field)
 
-        if config_type in self.registrations:
+        if config_type in self.__registrations:
             raise ValueError(f'Config \'{config_type}\' already registered.')
         
-        self.registrations[config_type] = _RegistrationPart(
+        self.__registrations[config_type] = _RegistrationPart(
             config_type,
             config_type,
             _ConfigResolver(config_type, config_field),
@@ -266,10 +272,10 @@ class Container:
 
         self.__validate_config(config_field)
 
-        if name in self.registrations_by_name:
+        if name in self.__registrations_by_name:
             raise ValueError(f'Config with name \'{name}\' already registered')
 
-        self.registrations_by_name[name] = _RegistrationPart(
+        self.__registrations_by_name[name] = _RegistrationPart(
             config_type,
             config_type,
             _ConfigResolver(config_type, config_field),
@@ -295,7 +301,7 @@ class Container:
 
         self.__validate_registration(provide_type, register_type)
         
-        self.registrations[provide_type] = _RegistrationPart(
+        self.__registrations[provide_type] = _RegistrationPart(
             provide_type,
             register_type,
             _TypeResolver(register_type),
@@ -355,7 +361,7 @@ class Container:
 
         self.__validate_registration(provide_type, register_type)
 
-        self.registrations_by_name[name] = _RegistrationPart(
+        self.__registrations_by_name[name] = _RegistrationPart(
             provide_type,
             register_type,
             _TypeResolver(register_type),
@@ -386,7 +392,7 @@ class Container:
             register_type
         )
         
-        self.registrations[provide_type] = _RegistrationPart(
+        self.__registrations[provide_type] = _RegistrationPart(
             provide_type,
             register_type,
             factory,
@@ -420,7 +426,7 @@ class Container:
             register_type
         )
         
-        self.registrations_by_name[name] = _RegistrationPart(
+        self.__registrations_by_name[name] = _RegistrationPart(
             provide_type,
             register_type,
             factory,
@@ -442,10 +448,10 @@ class Container:
         Returns:
             T: object resolved by type.
         '''
-        if not data_type in self.registrations:
+        if not data_type in self.__registrations:
             raise ValueError(f'\'{data_type}\' is not registered.')
         
-        reg_part = self.registrations[data_type]
+        reg_part = self.__registrations[data_type]
 
         return self.__process_reg_part(reg_part)
         
@@ -456,7 +462,7 @@ class Container:
 
         Args:
             name (str): Name identificator.
-            data_type (Type[T]): Type to be resolved
+            data_type (Type[T]): Type to be resolved.
 
         Raises:
             ValueError: If not have registration with name identificator.
@@ -466,10 +472,10 @@ class Container:
             T: object resolved by type.
         '''
 
-        if not name in self.registrations_by_name:
+        if not name in self.__registrations_by_name:
             raise ValueError(f'Not have registration with name \'{name}\'')
 
-        reg_part = self.registrations_by_name[name]
+        reg_part = self.__registrations_by_name[name]
 
         if reg_part.provide_type != data_type:
             raise ValueError(f'Not have registration with name \'{name}\' and type \'{data_type}\'.')

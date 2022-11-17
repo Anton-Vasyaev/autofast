@@ -33,6 +33,7 @@ def validate_ancestor_and_descendant(ancestor_type : Type, descendant_type : Typ
     Raises:
         Exception: if `ancestor_type` is not ancestor of `descendant_type`.
     '''
+
     cls_meta = get_class_meta_info(descendant_type)
 
     find_status = __validate_ancestor_and_descendant_way(ancestor_type, cls_meta)

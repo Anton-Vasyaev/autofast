@@ -154,6 +154,11 @@ def get_nested_generic_instance(
         
         new_args.append(arg)
 
-    generic_instance = get_generic_origin(t)[tuple(new_args)]
+    # ToDo
+    # generic_origin = get_generic_origin(t)
+    # generic_instance = get_generic_origin(t)[tuple(new_args)]
+    
+    # ToDo change on 3.8.13
+    generic_instance = t[tuple(new_args)]
 
     return generic_instance
