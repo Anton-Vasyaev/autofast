@@ -12,5 +12,5 @@ class ConfigCityProvider(ICityProvider):
         self.config = config
         
     
-    def provide_city(self) -> MayorData:
+    def provide_city(self) -> CityData:
         return CityData(self.config.name, self.config.population)

@@ -13,8 +13,8 @@ def validate_registration_strong_inheritance(provide_type : Type, register_type 
     Validates provide and register types for strong inheritance rules. 
 
     Args:
-        provide_type (Type): Provide type. 
-        register_type (Type): Register type.
+        provide_type (Type): Type to be resolved. 
+        register_type (Type): Type to be registered.
     '''
 
     validate_ancestor_and_descendant(provide_type, register_type)
@@ -31,8 +31,8 @@ def validate_registration(provide_type : Type, register_type : Type):
     Validates provide and register types.
 
     Args:
-        provide_type (Type): Provide type.
-        register_type (Type): Register type.
+        provide_type (Type): Type to be resolved.
+        register_type (Type): Type to be registered.
     '''
 
     validate_ancestor_and_descendant(provide_type, register_type)

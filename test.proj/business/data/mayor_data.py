@@ -5,4 +5,4 @@ from dataclasses import dataclass
 class MayorData:
     name   : str
     age    : int
-    skills : int
+    skills : float
