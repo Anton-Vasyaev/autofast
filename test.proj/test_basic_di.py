@@ -9,6 +9,7 @@ from business.interfaces    import *
 from business.realisation   import *
 from business.configuration import *
 
+
 def test_basic_di():
     str_data = ['']
     
@@ -24,10 +25,10 @@ def test_basic_di():
     )
     container.load_config(config, config_options)
     
-    container.register_config(CityConfiguration,    "city")
-    container.register_config(FormatConfiguration,  "format")
-    container.register_config(MayorConfiguration,   "mayor")
-    container.register_config(PrinterConfiguration, "printer")
+    container.register_config(CityConfiguration, 'city')
+    container.register_config(FormatConfiguration, 'format')
+    container.register_config_by_name('mayor_config', MayorConfiguration, 'mayor')
+    container.register_config(PrinterConfiguration, 'printer')
      
     
     container.register_factory(
@@ -37,13 +38,23 @@ def test_basic_di():
         ResolveType.Singleton
     )
     
-    container.register_type(ICityProvider,     ConfigCityProvider,    ResolveType.Singleton)
-    container.register_type(IMayorProvider,    ConfigMayorProvider,   ResolveType.Singleton)
-    container.register_type(IMessageLoader,    BarMessageLoader,      ResolveType.Singleton)
-    container.register_type(IMessageFormatter, FooMessageFormatter,   ResolveType.Singleton)
-    container.register_type(IDataProcessor,    StandardDataProcessor, ResolveType.Singleton)
-    
-    
+    container.register_singleton(ICityProvider, ConfigCityProvider)
+
+    container.register_factory_by_name(
+        'mayor_provider',
+        IMayorProvider,    
+        ConfigMayorProvider,
+        lambda c: ConfigMayorProvider(c.resolve_by_name('mayor_config', MayorConfiguration)),
+        ResolveType.Singleton
+    )
+    container.register_factory(
+        IMessageLoader, BarMessageLoader,
+        lambda c : BarMessageLoader(c.resolve(ICityProvider), c.resolve_by_name('mayor_provider', IMayorProvider)),
+        ResolveType.Singleton
+    )
+    container.register_singleton(IMessageFormatter, FooMessageFormatter)
+    container.register_singleton(IDataProcessor,    StandardDataProcessor)
+     
     processor = container.resolve(IDataProcessor)
     
     processor.process()

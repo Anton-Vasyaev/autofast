@@ -21,7 +21,7 @@ class BarMessageLoader(IMessageLoader):
     
     def load_message(self) -> CityMessage:
         city  = self.city_provider.provide_city()
-        mayor = self.mayor_provider.provide_major()
+        mayor = self.mayor_provider.provide_mayor()
         
         return CityMessage(city, mayor)
         

@@ -34,8 +34,6 @@ def test_basic_deserialization():
         
     configuration = deserialize_config(TrainingConfiguration, config)
     
-    print(configuration)
-    
     # Check TrainingParameters
     train_params = configuration.train_params
     
@@ -86,3 +84,7 @@ def test_basic_deserialization():
     assert float_equal(aug_params.aug_size, 3.65)
     
     assert configuration.module_name is None
+
+
+if __name__ == '__main__':
+    test_basic_deserialization()
