@@ -15,6 +15,7 @@ from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
 from .data.field_meta_data import FieldMeta, FIELDMETA_KEYNAME
 from .parse_graph     import Node, DictNode, ListNode, ValueNode
 from .error           import FieldParseError
+from .enum            import parse_enum_str, parse_enum_int
 
 from .data import ConfigurationOptions, MetaInfoType
 
@@ -165,34 +166,24 @@ def __deserialize_enum(
     
     # parse str
     if isinstance(val, str):
-        elements_data = { }
-        for el in enum_type:
-            if not options.strong_enum_str:
-                elements_data[el.name.lower()] = el
-            else:
-                elements_data[el.name] = el
-
-        key_item = val.lower() if not options.strong_enum_str else val
-        
-        if not key_item in elements_data:
+        try:
+            enum_data = parse_enum_str(enum_type, val, options.strong_enum_str)
+            return enum_data
+        except Exception as exc:
             raise FieldParseError(
                 node,
-                f'string \'{val}\' not present in enum \'{enum_type}\''
+                str(exc)
             )
-            
-        return elements_data[key_item]
-    
     # parse int
     else:
-        int_values = set(item.value for item in enum_type)
-        
-        if not val in int_values:
+        try:
+            enum_data = parse_enum_int(enum_type, val)
+            return enum_data
+        except Exception as exc:
             raise FieldParseError(
                 node,
-                f'int value \'{val}\' not present in enum\'{enum_type}\''
+                str(exc)
             )
-        
-        return enum_type(val)
     
     
 def __deserialize_number(
