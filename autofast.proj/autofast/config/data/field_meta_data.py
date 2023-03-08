@@ -3,7 +3,7 @@ from dataclasses import field, Field
 from typing import Any, Callable
 
 
-FIELDMETA_KEYNAME = 'fastdi_meta'
+FIELDMETA_KEYNAME = 'autofast_meta'
 
 @dataclass
 class FieldMeta:

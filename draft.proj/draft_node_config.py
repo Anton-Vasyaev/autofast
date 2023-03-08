@@ -2,7 +2,7 @@ import dependencies
 # python
 import json
 # project
-from fastdi.config.parse_graph.node import Node, DictNode, ListNode, ValueNode
+from autofast.config.parse_graph.node import Node, DictNode, ListNode, ValueNode
 
 
 def get_full_path(node : Node):

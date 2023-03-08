@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Set, Any, Dict, cast
 
-from fastdi.reflection.data import ClassMetaInfo
+from autofast.reflection.data import ClassMetaInfo
 
 @dataclass
 class InheritanceGraphNode:

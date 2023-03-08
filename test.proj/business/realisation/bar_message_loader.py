@@ -1,6 +1,6 @@
 import dependencies
 # project
-import fastdi.verify as fdi_ver 
+import autofast.verify as fdi_ver 
 
 from ..interfaces import IMessageLoader
 from ..interfaces import ICityProvider

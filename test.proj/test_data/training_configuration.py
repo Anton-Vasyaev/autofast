@@ -1,7 +1,7 @@
 # python
 from dataclasses import dataclass, field
 # project
-from fastdi.config import field_meta
+from autofast.config import field_meta
 
 from .training_parameters import TrainingParameters
 from .environment_settings import EnvironmentSettings

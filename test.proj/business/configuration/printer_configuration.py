@@ -1,7 +1,7 @@
 # python
 from dataclasses import dataclass
 # project
-from fastdi.config import field_meta
+from autofast.config import field_meta
 
 
 

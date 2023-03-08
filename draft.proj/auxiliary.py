@@ -2,7 +2,7 @@ import dependencies
 # python
 from typing import cast
 # project
-from fastdi.reflection.data import ClassMetaInfo
+from autofast.reflection.data import ClassMetaInfo
 
 def print_class_meta_info(
     info : ClassMetaInfo,

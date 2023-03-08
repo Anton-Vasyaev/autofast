@@ -1,7 +1,7 @@
 import dependencies
 # test
-from fastdi.injection import Container, ContainerOptions, ResolveType
-from fastdi.config    import ConfigurationOptions
+from autofast.injection import Container, ContainerOptions, ResolveType
+from autofast.config    import ConfigurationOptions
 # python
 import json
 # project

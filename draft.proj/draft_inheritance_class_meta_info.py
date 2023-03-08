@@ -4,7 +4,7 @@ import dependencies
 from abc    import ABC, abstractmethod
 from typing import Generic, TypeVar
 # project
-from fastdi.reflection.meta import get_class_meta_info
+from autofast.reflection.meta import get_class_meta_info
 from auxiliary import print_class_meta_info
 
 T = TypeVar('T')

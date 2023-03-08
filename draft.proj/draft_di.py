@@ -2,7 +2,7 @@ import dependencies
 # python
 from abc import ABC, abstractmethod
 # project
-from fastdi.injection import Container, ResolveType
+from autofast.injection import Container, ResolveType
 
 
 class IntDataConfig:

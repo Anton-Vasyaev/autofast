@@ -1,7 +1,7 @@
 # python
 from typing import Type
 # project
-from fastdi.reflection import get_class_meta_info
+from autofast.reflection import get_class_meta_info
 
 from .constructor import validate_constructor
 from .function import validate_functions

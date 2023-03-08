@@ -1,8 +1,8 @@
 # python
 from typing import Type, cast
 # project
-from fastdi.reflection.data import ClassMetaInfo
-from fastdi.reflection import get_class_meta_info
+from autofast.reflection.data import ClassMetaInfo
+from autofast.reflection import get_class_meta_info
 
 
 def __validate_ancestor_and_descendant_way(search_type : Type, current_class_meta : ClassMetaInfo):

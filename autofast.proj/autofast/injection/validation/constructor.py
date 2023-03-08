@@ -1,8 +1,8 @@
 # python
 from typing import Type, Any
 # project
-from fastdi.reflection      import get_class_meta_info
-from fastdi.reflection.data import ClassMetaInfo
+from autofast.reflection      import get_class_meta_info
+from autofast.reflection.data import ClassMetaInfo
 
 
 def validate_constructor(cls_meta: ClassMetaInfo):

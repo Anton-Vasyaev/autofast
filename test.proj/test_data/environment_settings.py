@@ -3,7 +3,7 @@ import dependencies
 from dataclasses import dataclass
 from typing      import List, Tuple
 # project
-from fastdi.config import field_meta
+from autofast.config import field_meta
 
 
 ModelsListType = List[Tuple[str, int, bool]]

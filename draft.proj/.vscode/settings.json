@@ -1,5 +1,5 @@
 {
     "python.analysis.extraPaths": [
-        "${workspaceFolder}/../fastdi.proj"
+        "${workspaceFolder}/../autofast.proj"
     ]
 }

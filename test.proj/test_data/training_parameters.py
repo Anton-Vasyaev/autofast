@@ -4,7 +4,7 @@ import dependencies
 from dataclasses import dataclass
 from typing      import Tuple, List
 # project
-from fastdi.config import field_meta
+from autofast.config import field_meta
 
 from .image_type import ImageType
 

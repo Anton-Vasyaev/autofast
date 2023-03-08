@@ -8,7 +8,7 @@ from enum import Enum, auto
 from nameof import nameof
 from ..config.data.configuration_options import ConfigurationOptions
 # project
-import fastdi.verify as fdi_ver
+import autofast.verify as fdi_ver
 
 from .validation import *
 from ..config    import deserialize_config

@@ -1,7 +1,7 @@
 # python
 from typing import List
 # project
-from fastdi.reflection.data import ClassMetaInfo, FunctionMetaInfo
+from autofast.reflection.data import ClassMetaInfo, FunctionMetaInfo
 from .graph import *
 
 

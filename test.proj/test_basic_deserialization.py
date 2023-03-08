@@ -1,6 +1,6 @@
 import dependencies
 # test
-from fastdi.config import deserialize_config
+from autofast.config import deserialize_config
 # python
 import json
 # project

@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from typing import Tuple, List
 from enum import Enum, auto
 # project
-from fastdi.config import field_meta
+from autofast.config import field_meta
 
 
 @dataclass

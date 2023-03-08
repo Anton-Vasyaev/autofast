@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing import Tuple, List
 # project
-from fastdi.config import field_meta
+from autofast.config import field_meta
 
 
 @dataclass

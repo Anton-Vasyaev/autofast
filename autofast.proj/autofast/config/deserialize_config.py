@@ -253,7 +253,7 @@ def __provide_fields_meta(
     for field in fields(data_type):
         if isinstance(field.metadata, MappingProxyType):
             if FIELDMETA_KEYNAME in field.metadata:
-                type_meta[field.name] = field.metadata['fastdi_meta']
+                type_meta[field.name] = field.metadata[FIELDMETA_KEYNAME]
 
     # rewrite meta from static field FIELDS_META
     if hasattr(data_type, "FIELDS_META"):

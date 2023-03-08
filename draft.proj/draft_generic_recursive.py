@@ -4,7 +4,7 @@ from typing import Generic, TypeVar
 # 3rd party
 import numpy as np
 # project
-from fastdi.reflection.meta import get_class_meta_info
+from autofast.reflection.meta import get_class_meta_info
 from auxiliary              import print_class_meta_info 
 
 
