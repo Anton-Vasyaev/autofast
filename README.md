@@ -1,5 +1,5 @@
-# FastDI
-FastDI - it is a modern python library for dependency injection and app configuration.
+# Autofast
+Autofast - it is a modern python library for dependency injection and app configuration.
 
 ### Features
 
