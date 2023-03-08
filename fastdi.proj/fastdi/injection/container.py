@@ -190,8 +190,6 @@ class Container:
         
         self.config         = None
         self.config_options = None
-
-        print(f'self config:{self.config}')
         
         self.__registrations         = dict()
         self.__registrations_by_name = dict()
