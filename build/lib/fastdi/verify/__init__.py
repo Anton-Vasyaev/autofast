@@ -1,1 +1,0 @@
-from .object_verify import is_none as is_none
