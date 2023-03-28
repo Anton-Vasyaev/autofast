@@ -1,2 +1,3 @@
-from .data               import FieldMeta, field_meta, MetaInfoType, ConfigurationOptions
-from .deserialize_config import deserialize_config
+from .data            import FieldMeta, field_meta, MetaInfoType, ConfigurationOptions
+from .deserialization import deserialize_config
+from .serialization   import serialize_config

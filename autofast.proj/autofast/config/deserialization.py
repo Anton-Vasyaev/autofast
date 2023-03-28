@@ -231,7 +231,7 @@ def __deserialize_bool(
     return bool(val)
 
 
-def _validate_fields_meta(
+def validate_fields_meta(
     meta_data : Dict[str, FieldMeta],
     data_type : Type
 ):
@@ -243,7 +243,7 @@ def _validate_fields_meta(
             )
         
 
-def __provide_fields_meta(
+def provide_fields_meta(
     data_type : Type, 
     meta_info : MetaInfoType
 ) -> Dict[str, FieldMeta]:
@@ -269,7 +269,7 @@ def __provide_fields_meta(
         for field_name, field_meta in type_fields_meta.items():
             type_meta[field_name] = field_meta
 
-    _validate_fields_meta(type_meta, data_type)
+    validate_fields_meta(type_meta, data_type)
         
     return type_meta
 
@@ -281,7 +281,7 @@ def __deserialize_dict(
 ) -> __GenType:
     t_params = {}
     
-    fields_meta = __provide_fields_meta(data_type, options.meta_info)
+    fields_meta = provide_fields_meta(data_type, options.meta_info)
     
     for field in fields(data_type):
         # default parsing
