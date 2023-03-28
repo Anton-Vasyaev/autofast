@@ -1,6 +1,6 @@
 import dependencies
 # test
-from autofast.config import deserialize_config
+from autofast.config import deserialize_config, serialize_config
 # python
 import json
 # project
@@ -32,8 +32,12 @@ def test_basic_deserialization():
     with open(json_path, 'r') as fh:
         config = json.load(fh)
         
-    configuration = deserialize_config(TrainingConfiguration, config)
-    
+    configuration_first = deserialize_config(TrainingConfiguration, config)
+
+    config_first = serialize_config(configuration_first)
+
+    configuration = deserialize_config(TrainingConfiguration, config_first)
+
     # Check TrainingParameters
     train_params = configuration.train_params
     

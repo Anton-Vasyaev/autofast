@@ -31,7 +31,7 @@ def parse_enum_str(
 
     # parse str
     if isinstance(val, str):
-        elements_data = { }
+        elements_data = dict()
         for el in enum_type:
             if not strong_enum:
                 elements_data[el.name.lower()] = el
