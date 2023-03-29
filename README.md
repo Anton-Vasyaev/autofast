@@ -1,5 +1,5 @@
 # Autofast
-Autofast - it is a modern python library for dependency injection and app configuration.
+Autofast - is a modern python library for dependency injection and app configuration.
 
 ### Features
 
