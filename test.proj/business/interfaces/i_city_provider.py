@@ -1,10 +1,10 @@
 # python
-from abc import ABC, abstractclassmethod
+from abc import abstractclassmethod
 # project
 from ..data import CityData
 
 
-class ICityProvider(ABC):
+class ICityProvider:
     @abstractclassmethod
     def provide_city(self) -> CityData:
         raise NotImplementedError()

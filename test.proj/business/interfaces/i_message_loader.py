@@ -1,11 +1,11 @@
 # python
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 # porject
 from ..data import CityMessage
 
 
 
-class IMessageLoader(ABC):
+class IMessageLoader:
     @abstractmethod
     def load_message(self) -> CityMessage:
         raise NotImplementedError()

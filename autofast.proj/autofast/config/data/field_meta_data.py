@@ -1,32 +1,39 @@
 from dataclasses import dataclass, MISSING
 from dataclasses import field, Field
-from typing import Any, Callable
+from typing import Any, Callable, Optional, Dict
+from ..parse_graph import Node
 
 
 FIELDMETA_KEYNAME = 'autofast_meta'
 
+
+DecoderType = Optional[Callable[[Node], Any]]
+EncoderType = Optional[Callable[[Any], Any]]
+
+
+
 @dataclass
 class FieldMeta:
-    required   : bool                 = False
-    parse_name : str                  = ''
-    decoder    : Callable[[Any], Any] = None
+    parse_name : str  = ''
+    decoder    : DecoderType = None
+    encoder    : EncoderType = None
 
 
     @staticmethod
     def to_dict(
-        required   : bool                   = False,
-        parse_name : str                    = '',
-        decoder    : Callable[[Any], Any]   = None
+        parse_name : str         = '',
+        decoder    : DecoderType = None,
+        encoder    : EncoderType = None
     ):
         return {
-            FIELDMETA_KEYNAME : FieldMeta(required, parse_name, decoder)
+            FIELDMETA_KEYNAME : FieldMeta(parse_name, decoder, encoder)
         }
 
 
 def field_meta(
-    required   : bool                 = False,
     parse_name : str                  = '',
-    decoder    : Callable[[Any], Any] = None,
+    decoder    : DecoderType          = None,
+    encoder    : EncoderType          = None,
     default                           = MISSING, 
     default_factory                   = MISSING, 
     init                              = True, 
@@ -35,7 +42,7 @@ def field_meta(
     compare                           = True, 
     metadata                          = None
 ):
-    meta_dict = FieldMeta.to_dict(required, parse_name, decoder)
+    meta_dict = FieldMeta.to_dict(parse_name, decoder, encoder)
 
     if not metadata is None:
         meta_dict.update(metadata)

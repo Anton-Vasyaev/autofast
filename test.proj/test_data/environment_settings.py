@@ -10,7 +10,9 @@ ModelsListType = List[Tuple[str, int, bool]]
 
 @dataclass
 class EnvironmentSettings:
-    checkpoint_path : str            = field_meta(required=True)
-    export_path     : str            = field_meta(required=True)
-    models          : ModelsListType = field_meta(required=True)
+    checkpoint_path : str
+
+    export_path : str
+    
+    models : ModelsListType
 

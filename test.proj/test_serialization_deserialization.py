@@ -1,12 +1,14 @@
 import dependencies
 # test
-from autofast.config import deserialize_config, serialize_config
+from autofast.config import *
 # python
 import json
 # project
 from test_data.training_configuration import TrainingConfiguration
 from test_data.image_type             import ImageType
 from test_data.aug_distributions      import StretchImageType, StretchOrientationType
+
+from test_data.point import *
 
 
 def float_equal(val, rel_eps = 1e-6):
@@ -31,12 +33,18 @@ def test_basic_deserialization():
     
     with open(json_path, 'r') as fh:
         config = json.load(fh)
-        
-    configuration_first = deserialize_config(TrainingConfiguration, config)
+    
+    config_options = ConfigurationOptions(
+        types_info= {
+            Point2 : TypeConfigInfo(point_encoder, point_decoder)
+        }
+    )
 
-    config_first = serialize_config(configuration_first)
+    configuration_first = deserialize_config(TrainingConfiguration, config, config_options)
 
-    configuration = deserialize_config(TrainingConfiguration, config_first)
+    config_first = serialize_config(configuration_first, config_options)
+
+    configuration = deserialize_config(TrainingConfiguration, config_first, config_options)
 
     # Check TrainingParameters
     train_params = configuration.train_params
@@ -46,7 +54,13 @@ def test_basic_deserialization():
     assert train_params.batch_size == 8
     assert float_equal(train_params.learning_rate, 0.001) 
     assert train_params.use_gpu == True
-    
+
+    p1 = train_params.roi_zone[0]
+    assert float_equal(p1.x, 0.5) and float_equal(p1.y, 0.6)
+    p2 = train_params.roi_zone[0]
+    assert float_equal(p2.x, 0.7) and float_equal(p2.y, 0.8)
+    p3 = train_params.roi_zone[0]
+    assert float_equal(p3.x, 0.9) and float_equal(p3.y, 30.0)
     
     # Check EnvironmentSettings
     env_sets = configuration.env_settings
@@ -84,6 +98,9 @@ def test_basic_deserialization():
     stretch = aug_dist.stretch
     assert stretch.orientation == StretchOrientationType.VERTICAL
     assert stretch.image       == StretchImageType.DST
+
+    noise_delta = aug_dist.noise_delta
+    assert noise_delta == None
     
     assert float_equal(aug_params.aug_size, 3.65)
     
