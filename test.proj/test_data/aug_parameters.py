@@ -1,8 +1,12 @@
 from dataclasses import dataclass
+from typing      import Optional
+# project
 from .aug_distributions import *
 
 @dataclass
 class AugmentationParameters:
-    aug_dist    : AugmentationDistribution
-    aug_size    : float                     = field_meta(required=True)
-    random_seed : int                       = field_meta(default=1024)
+    aug_dist : Optional[AugmentationDistribution]
+
+    aug_size : float
+    
+    random_seed : int

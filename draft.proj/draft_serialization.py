@@ -8,20 +8,20 @@ from autofast.config import field_meta, serialize_config
 
 @dataclass
 class Point:
-    x : float = field_meta(required=True)
+    x : float
     
-    y : float = field_meta(required=True)
+    y : float
 
 
 @dataclass
 class Zone:
-    name : str = field_meta(required=True, parse_name='zone_id')
+    name : str = field_meta(parse_name='zone_id')
 
-    polygon : List[Point] = field_meta(required=True)
+    polygon : List[Point]
 
-    enable_cache : bool = field_meta(required=True)
+    enable_cache : bool
 
-    detections_count : int = field_meta(required=True)
+    detections_count : int
 
 
 if __name__ == '__main__':

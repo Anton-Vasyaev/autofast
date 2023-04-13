@@ -10,7 +10,13 @@
 
         "learning_rate" : 0.001,
         
-        "use_gpu" : true
+        "use_gpu" : true,
+
+        "roi_zone" : [
+            [0.5, 0.6],
+            [0.7, 0.8],
+            [0.9, 30.0]
+        ]
     },
 
     "env_settings" : {
@@ -53,6 +59,8 @@
             }
         },
 
-        "aug_size" : 3.65
+        "aug_size" : 3.65,
+        
+        "random_seed" : 1024
     }
 }

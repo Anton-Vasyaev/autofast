@@ -1,5 +1,6 @@
 # python
 from dataclasses import dataclass, field
+from typing      import Optional
 # project
 from autofast.config import field_meta
 
@@ -9,6 +10,6 @@ from .aug_parameters       import AugmentationParameters
 
 @dataclass
 class TrainingConfiguration:
-    train_params : TrainingParameters     = field_meta(required=True)
-    env_settings : EnvironmentSettings    = field_meta(required=True)
-    aug_params   : AugmentationParameters = field_meta()
+    train_params : TrainingParameters
+    env_settings : EnvironmentSettings
+    aug_params   : Optional[AugmentationParameters]

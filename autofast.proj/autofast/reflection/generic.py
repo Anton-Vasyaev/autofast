@@ -1,5 +1,5 @@
 # python
-from typing import Type, Generic, TypeVar, Any, List, Dict, cast, get_args
+from typing import Type, Generic, TypeVar, Union, Any, List, Dict, cast, get_args
 
 
 def is_generic_class(t : Type) -> bool:
@@ -162,3 +162,21 @@ def get_nested_generic_instance(
     generic_instance = t[tuple(new_args)]
 
     return generic_instance
+
+
+
+def is_optional(t : Type) -> bool:
+    if not is_instantiated_generic_class(t):
+        return False
+
+    if get_generic_origin(t) == Union:
+        args = get_args(t)
+        if len(args) == 2:
+            if args[1] == type(None):
+                return True
+            
+    return False
+
+
+def get_optional_type(t : Type) -> Type:
+    return get_args(t)[0]

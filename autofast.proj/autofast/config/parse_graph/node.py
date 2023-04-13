@@ -1,11 +1,15 @@
 # python
 from __future__ import annotations
-from typing import Any, Type
-from abc    import ABC, abstractmethod
+from typing import Any, Type, List
+from abc    import abstractmethod
 # project
 
 
-class Node(ABC):
+class Node:
+    parent : Node
+
+    key_name : str
+
     def __init__(
         self,
         parent   : Node,
@@ -50,17 +54,19 @@ class Node(ABC):
             
 
 class DictNode(Node):
+    dict_data : dict[str, Node]
+
     def __init__(
         self,
-        data     : dict,
-        parent   : Any,
-        key_name : str
+        dict_data : dict,
+        parent    : Node,
+        key_name  : str
     ):
         super().__init__(parent, key_name)
         
-        self.dict_data : dict[str, Node] = {}
+        self.dict_data = dict()
         
-        for key, item in data.items():
+        for key, item in dict_data.items():
             self.dict_data[key] = _provide_node(item, self, key)
             
     
@@ -70,15 +76,17 @@ class DictNode(Node):
 
             
 class ListNode(Node):
+    list_data : List[Node]
+
     def __init__(
         self,
         list_data : list,
-        parent    : Any,
+        parent    : Node,
         key_name  : str
     ):
         super().__init__(parent, key_name)
         
-        self.list_data : list[Node] = []
+        self.list_data : list[Node] = list()
         
         for idx in range(len(list_data)):
             item = list_data[idx]
@@ -91,10 +99,12 @@ class ListNode(Node):
         
         
 class ValueNode(Node):
+    value : Any
+    
     def __init__(
         self,
         value    : Any,
-        parent   : Any,
+        parent   : Node,
         key_name : str
     ):
         super().__init__(parent, key_name)

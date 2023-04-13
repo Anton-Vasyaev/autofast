@@ -1,10 +1,10 @@
 # python
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 # project
 from ..data import MayorData
 
 
-class IMayorProvider(ABC):
+class IMayorProvider:
     @abstractmethod
     def provide_mayor(self) -> MayorData:
         raise NotImplementedError()

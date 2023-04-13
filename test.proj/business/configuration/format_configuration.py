@@ -17,5 +17,6 @@ class WordType(Enum):
 
 @dataclass
 class FormatConfiguration:
-    language_type : LanguageType = field_meta(required=True)
-    word_type     : WordType     = field_meta(required=True)
+    language_type : LanguageType
+
+    word_type : WordType

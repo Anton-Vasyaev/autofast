@@ -1,9 +1,9 @@
 # python
-from abc import ABC, abstractmethod
+from abc import abstractmethod
 
 
 
-class IDataProcessor(ABC):
+class IDataProcessor:
     @abstractmethod
     def process(self):
         raise NotImplementedError()

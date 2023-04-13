@@ -2,7 +2,7 @@
 from numbers        import Number
 from dataclasses    import MISSING, dataclass, fields, field
 from types          import MappingProxyType
-from typing         import Optional, Type, List, Any, TypeVar, cast
+from typing         import Optional, Type, Any, TypeVar, cast
 from typing         import Dict
 from enum           import Enum
 # 3rd party
@@ -13,15 +13,26 @@ from .error.config_parse_error import ConfigParseError
 from .deserialize_aux import is_list_alias, is_tuple_alias, is_true_number_type
 from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
 from .data.field_meta_data import FieldMeta, FIELDMETA_KEYNAME
+from .data.configuration_options import DecoderType
 from .parse_graph     import Node, DictNode, ListNode, ValueNode
 from .error           import FieldParseError
 from .enum            import parse_enum_str, parse_enum_int
 
-from .data import ConfigurationOptions, MetaInfoType
+from .data import ConfigurationOptions, FieldMetaInfoType
+
+import autofast.reflection.generic as reflect_generic
 
 
 __GenType = TypeVar('__GenType')
 
+
+def __options_has_custom_decoder(item_type : Type, options : ConfigurationOptions) -> bool:
+    if item_type in options.types_info:
+        type_info = options.types_info[item_type]
+        if not type_info.decoder is None:
+            return True
+        
+    return False
 
 
 def __deserialize_item(
@@ -29,16 +40,30 @@ def __deserialize_item(
     node      : Node, 
     options   : ConfigurationOptions
 ):
-    if isinstance(node, ValueNode):
-        val_node : ValueNode = node
-        if val_node.value is None:
-            return None
-
-    
     deserialized_item = None
+
+    # ToDo
+    print(node.get_full_path_str())
+
+    # deserialize optional
+    if reflect_generic.is_optional(item_type):
+        if isinstance(node, ValueNode):
+            val_node : ValueNode = node
+            if val_node.value is None:
+                return None
     
+        deserialized_item = __deserialize_item(
+            reflect_generic.get_optional_type(item_type), 
+            node, 
+            options
+        )
+    
+    # deserialize if options has custom decoder
+    elif __options_has_custom_decoder(item_type, options):
+        return options.types_info[item_type].decoder(node)
+
     # deserialize list part
-    if is_list_alias(item_type):
+    elif is_list_alias(item_type):
         deserialized_item = __deserialize_list(item_type, node, options)
 
     # deserialize list part that a present tuple
@@ -64,11 +89,11 @@ def __deserialize_item(
     # deserialize dict
     elif isinstance(node, DictNode):
         deserialized_item = __deserialize_dict(item_type, node, options)
-    
+
     else:
         raise ConfigParseError(
             node,
-            f'invalid type of serialization in config:{node.get_original_type()}'
+            f'invalid type of serialization in config:{node.get_full_path_str()}'
         )
     
     return deserialized_item
@@ -245,9 +270,9 @@ def validate_fields_meta(
 
 def provide_fields_meta(
     data_type : Type, 
-    meta_info : MetaInfoType
+    meta_info : FieldMetaInfoType
 ) -> Dict[str, FieldMeta]:
-    type_meta = {}
+    type_meta = dict()
 
     # write local fields params
     for field in fields(data_type):
@@ -281,8 +306,10 @@ def __deserialize_dict(
 ) -> __GenType:
     t_params = {}
     
-    fields_meta = provide_fields_meta(data_type, options.meta_info)
+    fields_meta = provide_fields_meta(data_type, options.field_info)
     
+    types_info = options.types_info
+
     for field in fields(data_type):
         # default parsing
         parse_field_name = field.name
@@ -296,16 +323,22 @@ def __deserialize_dict(
                 if parse_name != '':
                     parse_field_name = parse_name
 
-                # validation required
-                if field_meta.required and not parse_field_name in dict_node.dict_data:
-                    raise ConfigParseError(
-                        f'Error during config parsing. Missing field \'{parse_field_name}\' in config '
-                        f'that present field \'{field.name}\' in dataclass \'{data_type}\'.'
-                    )
-                    
-                # if available decoder
+                # set global decoder
+                if field.type in types_info:
+                    type_info = types_info[field.type]
+                    if not type_info.decoder is None:
+                        decoder = lambda dict_val : type_info.decoder(dict_val)
+
+                # overwrite local decoder if available 
                 if not field_meta.decoder is None:
                     decoder = lambda dict_val : field_meta.decoder(dict_val)
+
+        # validation required
+        if not reflect_generic.is_optional(field.type) and not parse_field_name in dict_node.dict_data:
+            raise ConfigParseError(
+                f'Error during config parsing. Missing field \'{parse_field_name}\' in config '
+                f'that present field \'{field.name}\' in dataclass \'{data_type}\'.'
+            )
 
         dict_value = dict_node.dict_data[parse_field_name] if parse_field_name in dict_node.dict_data else None
         

@@ -1,14 +1,29 @@
 # python
 from dataclasses import dataclass, field
-from typing      import Dict, Type
+from typing      import Dict, Type, Optional
 # project
-from .field_meta_data import FieldMeta
+from .field_meta_data import FieldMeta, DecoderType, EncoderType
 
 
-MetaInfoType = Dict[Type, Dict[str, FieldMeta]]
+FieldMetaInfoType = Dict[Type, Dict[str, FieldMeta]]
+
+
+
+@dataclass
+class TypeConfigInfo:
+    encoder : Optional[EncoderType] = None
+    decoder : Optional[DecoderType] = None
+
+
+TypesConfigInfoType = Dict[Type, TypeConfigInfo]
+
 
 @dataclass
 class ConfigurationOptions:
-    meta_info              : MetaInfoType = field(default_factory=dict)
-    strong_enum_str        : bool         = False
-    strong_number_matching : bool         = False 
+    field_info : FieldMetaInfoType = field(default_factory=dict)
+
+    types_info : TypesConfigInfoType = field(default_factory=dict)
+
+    strong_enum_str : bool = False
+
+    strong_number_matching : bool = False 
