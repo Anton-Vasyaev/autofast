@@ -42,7 +42,7 @@ def get_functions_meta_info(t : Type) -> List[FunctionMetaInfo]:
         if 'return' in args_spec.annotations:
             return_annotation = args_spec.annotations['return']
 
-        # ToDo add static method inspect
+        # FUT add static method inspect
         meta_info_list.append(
             FunctionMetaInfo(
                 func,

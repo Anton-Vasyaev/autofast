@@ -3,15 +3,26 @@ from numbers        import Number
 from dataclasses    import MISSING, dataclass, fields, field
 from types          import MappingProxyType
 from typing         import Optional, Type, Any, TypeVar, cast
-from typing         import Dict
+from typing         import Dict, Generic
 from enum           import Enum
 # 3rd party
 from nameof import nameof
 
 from .error.config_parse_error import ConfigParseError
 # project
-from .deserialize_aux import is_list_alias, is_tuple_alias, is_true_number_type
-from .deserialize_aux import get_list_alias_arg, get_tuple_alias_args
+from .deserialize_aux import (
+    is_list_alias, 
+    is_dict_alias, 
+    is_tuple_alias,
+    is_dict_alias, 
+    is_true_number_type
+)
+from .deserialize_aux import (
+    get_list_alias_arg, 
+    get_tuple_alias_args,
+    get_dict_alias_key_arg,
+    get_dict_alias_item_arg
+)
 from .data.field_meta_data import FieldMeta, FIELDMETA_KEYNAME
 from .data.configuration_options import DecoderType
 from .parse_graph     import Node, DictNode, ListNode, ValueNode
@@ -24,6 +35,10 @@ import autofast.reflection.generic as reflect_generic
 
 
 __GenType = TypeVar('__GenType')
+
+
+# TODO
+
 
 
 def __options_has_custom_decoder(item_type : Type, options : ConfigurationOptions) -> bool:
@@ -39,11 +54,8 @@ def __deserialize_item(
     item_type : Type, 
     node      : Node, 
     options   : ConfigurationOptions
-):
+) -> Any:
     deserialized_item = None
-
-    # ToDo
-    print(node.get_full_path_str())
 
     # deserialize optional
     if reflect_generic.is_optional(item_type):
@@ -70,6 +82,10 @@ def __deserialize_item(
     elif is_tuple_alias(item_type):
         deserialized_item = __deserialize_tuple(item_type, node, options)
     
+    # deserialize dict part of dict alias like Dict[str, PersonInfo]
+    elif is_dict_alias(item_type):
+        deserialized_item = __deserialize_dict_alias(item_type, node, options)
+
     # deserialize str
     elif issubclass(item_type, str):
         deserialized_item = __deserialize_str(node)
@@ -99,20 +115,36 @@ def __deserialize_item(
     return deserialized_item
 
 
-def _validate_list_node(node : Node):
+def __validate_list_node(node : Node):
     if not isinstance(node, ListNode):
         raise FieldParseError(
             node, 
             f'expected type {nameof(list)}, gotted:{node.get_original_type()}'
         )
+    
+
+def __validate_value_node(node : Node):
+    if not isinstance(node, ValueNode):
+        raise FieldParseError(
+            node,
+            f'expected value, gotted:{node.get_original_type()}'
+        )
+
+
+def __validate_dict_node(node : Node):
+    if not isinstance(node, DictNode):
+        raise FieldParseError(
+            node,
+            f'expected value, gotted:{node.get_original_type()}'
+        )
 
 
 def __deserialize_list(
-    list_t  : Any, 
+    list_t  : Type, 
     node    : Node, 
     options : ConfigurationOptions
 ):
-    _validate_list_node(node)
+    __validate_list_node(node)
 
     list_node = cast(ListNode, node)
     
@@ -130,7 +162,7 @@ def __deserialize_tuple(
     node        : Node, 
     options     : ConfigurationOptions
 ):
-    _validate_list_node(node)
+    __validate_list_node(node)
     
     list_node = cast(ListNode, node)
     
@@ -147,12 +179,37 @@ def __deserialize_tuple(
     return tuple(deserialized_list)
 
 
-def __validate_value_node(node : Node):
-    if not isinstance(node, ValueNode):
+def __deserialize_dict_alias(
+    dict_alias_type : Type,
+    node            : Node,
+    options         : ConfigurationOptions
+):
+    __validate_dict_node(node)
+
+    dict_node = cast(DictNode, node)
+
+    key_type = get_dict_alias_key_arg(dict_alias_type)
+    item_type = get_dict_alias_item_arg(dict_alias_type)
+
+    if key_type != str:
         raise FieldParseError(
             node,
-            f'expected value, gotted:{node.get_original_type()}'
+            f'Cannot deserialize dict with key type != str:{key_type}'
         )
+    
+    deserialized_dict = {}
+
+    for node_key, node in dict_node.dict_data.items():
+        deserialized_data = __deserialize_item(
+            item_type,
+            node,
+            options
+        )
+
+        deserialized_dict[node_key] = deserialized_data
+
+    return deserialized_dict
+
         
 
 def __deserialize_str(
@@ -313,6 +370,7 @@ def __deserialize_dict(
     for field in fields(data_type):
         # default parsing
         parse_field_name = field.name
+
         decoder      = lambda node : __deserialize_item(field.type, node, options)
         
         # validation field meta

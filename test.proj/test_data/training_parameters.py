@@ -2,13 +2,14 @@ from urllib import request
 import dependencies
 # python
 from dataclasses import dataclass
-from typing      import Tuple, List
+from typing      import Dict, Tuple, List
 # project
 from autofast.config import field_meta
 
 from .image_type import ImageType
 
 from .point import Point2
+
 
 @dataclass
 class TrainingParameters:
@@ -25,4 +26,3 @@ class TrainingParameters:
     learning_rate : float = field_meta(default=1e-3)
     
     use_gpu : bool  = field_meta(default=True)
-

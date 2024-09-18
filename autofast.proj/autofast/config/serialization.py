@@ -47,6 +47,18 @@ def __serialize_collection(
     return serialized_list
 
 
+def __serialize_dict_alias(
+    dict_data : dict,
+    options
+):
+    serialize_data = {}
+
+    for key, val in dict_data.items():
+        serialize_data[key] = __serialize_item(val, options)
+
+    return serialize_data
+
+
 def __options_has_custom_encoder(item_type : Type, options : ConfigurationOptions) -> bool:
     if item_type in options.types_info:
         type_info = options.types_info[item_type]
@@ -66,12 +78,19 @@ def __serialize_item(item : Any, options : ConfigurationOptions) -> Any:
     if __options_has_custom_encoder(item_type, options):    
         encoder = options.types_info[item_type].encoder
         return encoder(item)
+    
     if __is_value(item_type):
         return item
+    
     elif issubclass(item_type, Enum):
         return __serialize_enum(item, options)
+    
     elif issubclass(item_type, (list, tuple)):
         return __serialize_collection(item, options)
+    
+    elif issubclass(item_type, dict):
+        return __serialize_dict_alias(item, options)
+
     else:
         return __serialize_dataclass(item, options)
 

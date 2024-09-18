@@ -106,6 +106,35 @@ def test_basic_deserialization():
     
     assert configuration.module_name is None
 
+    # Dict[str, DeviceInfo]
+    custom_devices = configuration.custom_devices
+
+    assert '#245' in custom_devices
+    first_device = configuration.custom_devices['#245']
+    assert first_device.device_name == 'RTM 2M.3d'
+    assert first_device.device_id == 0
+    assert first_device.vendor == 'ARSCI Tech.'
+
+    assert '#645' in custom_devices
+    second_device = configuration.custom_devices['#645']
+    assert second_device.device_name == 'Shantipak MX500'
+    assert second_device.device_id == 17
+    assert second_device.vendor == 'Pegovchanka Inc.'
+
+    assert '#001' in custom_devices
+    third_device = configuration.custom_devices['#001']
+    assert third_device.device_name == 'Havka Mark II'
+    assert third_device.device_id == 17
+    assert third_device.vendor == 'TONYA'
+
+    # Check Hardware settings alias
+    hardware_settings = configuration.hardware_settings
+
+    assert float_tuple_equal(hardware_settings[0], [0.5, 0.6])
+
+    assert hardware_settings[1] == 'performance_test'
+    assert hardware_settings[2] == 'foo_bar'
+    
 
 if __name__ == '__main__':
     test_basic_deserialization()

@@ -15,6 +15,10 @@ def is_tuple_alias(t : Type) -> bool:
     return t.__origin__ == tuple if is_generic(t) else False
 
 
+def is_dict_alias(t : Type) -> bool:
+    return t.__origin__ == dict if is_generic(t) else False
+
+
 def is_true_number_type(type) -> bool:
     return issubclass(type, numbers.Number) and not issubclass(type, bool)
 
@@ -26,3 +30,9 @@ def get_list_alias_arg(t : Type) -> Type:
 def get_tuple_alias_args(t : Type) -> List[Type]:
     return t.__args__
 
+
+def get_dict_alias_key_arg(t : Type) -> List[Type]:
+    return t.__args__[0]
+
+def get_dict_alias_item_arg(t : Type) -> List[Type]:
+    return t.__args__[1]
