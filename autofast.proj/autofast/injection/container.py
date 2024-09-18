@@ -5,7 +5,7 @@ from typing import Any, Dict, Optional, Callable, TypeVar, List, Type
 from dataclasses import dataclass
 from enum import Enum, auto
 # 3rd party
-from nameof import nameof
+from varname import nameof
 from ..config.data.configuration_options import ConfigurationOptions
 # project
 import autofast.verify as fdi_ver
