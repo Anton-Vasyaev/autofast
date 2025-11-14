@@ -27,7 +27,7 @@ setup(
     packages = find_packages(where='autofast.proj'),
     package_dir = {'': 'autofast.proj'},
     install_requires = [
-        'nameof>=0.0.1'
+        'varname>=0.15.0'
     ],
     requires_python='>=3.9.0',
 )

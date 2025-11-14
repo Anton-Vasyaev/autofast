@@ -6,7 +6,7 @@ from typing         import Optional, Type, Any, TypeVar, cast
 from typing         import Dict, Generic
 from enum           import Enum
 # 3rd party
-from nameof import nameof
+from varname import nameof
 
 from .error.config_parse_error import ConfigParseError
 # project

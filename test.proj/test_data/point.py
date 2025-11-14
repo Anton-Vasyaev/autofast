@@ -2,7 +2,7 @@
 from dataclasses import dataclass
 from typing      import List, cast
 # 3rd party
-from nameof import nameof
+from varname import nameof
 # project
 from autofast.config.parse_graph import Node, ListNode
 

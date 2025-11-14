@@ -1,5 +1,5 @@
 # python
-import nameof
+from varname import nameof
 from typing import Any
 
 def is_none(argument : Any, argument_name : str):
